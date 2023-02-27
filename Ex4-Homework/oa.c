@@ -1,3 +1,7 @@
+//THOMAS BALZAN
+//EXERCICE 4 - HOMEWORK
+//VERSION 6
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -307,10 +311,44 @@ void show_n_student(student *s, int n) {
     for (i = 0; i < n; i++)
         show_1_student(*(s + i), i + 1);
 }
-
-//-----------------------------
-//--------MAIN PROGRAM--------
-//-----------------------------
+//-----------------------------------
+//----------BONUS CSV PART-----------
+//-----------------------------------
+void entercsv(student *s, int N){
+    FILE *file;
+    char filename[50]="StudentData.csv";
+    file = fopen(filename, "w");
+    if(file==NULL){
+        printf("Error opening student file");
+        return;
+    }
+    for (int i = 0; i < N; ++i) {
+        fprintf(file, "%s,%s,%f,%f,%f,%f,%d,%d,%d", (s+i)->name, (s+i)->surname, (s+i)->n1, (s+i)->n2, (s+i)->n3, (s+i)->m,
+                (s+i)->day, (s+i)->month, (s+i)->year);
+    }
+    printf("\nNew data entered into student file");
+    fclose(file);
+}
+//-----------------------------------
+void showcsv(student *s, int N){
+    FILE *file;
+    char filename[50]="StudentData.csv";
+    int count=0;
+    file = fopen(filename, "r");
+    if(file==NULL){
+        printf("Error opening student file");
+        return;
+    }
+    for (int i = 0; i < N; ++i) {
+        fscanf(file, "%s,%s,%f,%f,%f,%f,%d,%d,%d", &s[i].name, &s[i].surname, &s[i].n1, &s[i].n2, &s[i].n3, &s[i].m,
+               &s[i].day, &s[i].month, &s[i].year);
+    }
+    show_n_student(s,N);
+    fclose(file);
+}
+//-----------------------------------
+//-----------MAIN PROGRAM------------
+//-----------------------------------
 void exo4() {
     student *s;
     int n, g, N = 0;
@@ -325,13 +363,18 @@ void exo4() {
             printf("\n 3 - Search Student");
             printf("\n 4 - Erase Student");
             printf("\n 5 - Modify Student");
-            printf("\n 6 - END ");
+            printf("\n 6 - Save data in file ");
+            printf("\n 7 - Show saved data ");
+            printf("\n 8 - END ");
             printf("\n------------------------");
             printf("\n What is your choice ? : ");
             printf("\n------------------------\n");
             scanf("%d", &g);
-            if (scanf("%c", &sn) != 1 || !isdigit(sn)) {
+            if (scanf("%c", &sn) != 15 || !isdigit(sn)) {
                 fflush(stdin);
+                printf("Please enter a valid choice");
+                printf("\n");
+                system("pause");
                 continue;
             }
             g = sn - '0';
@@ -348,10 +391,8 @@ void exo4() {
                 s = (student *)realloc(s, (N + n) * sizeof(student));
                 Enter_n_student(s, N, N + n);
                 N = N + n;
-                // printf(" en travail ") ;
             }
         }
-
         if (g == 2) {
             show_n_student(s, N);
             printf("\n");
@@ -374,7 +415,17 @@ void exo4() {
             printf("\n");
             system("pause");
         }
-    }while (g != 6);
+        if (g == 6){
+            entercsv(s,N);
+            printf("\n");
+            system("pause");
+        }
+        if (g == 7){
+            showcsv(s,N);
+            printf("\n");
+            system("pause");
+        }
+    }while (g != 8);
     printf("\n");
     printf("\nYou chose to end the program");
     printf("\nSee you next time");
