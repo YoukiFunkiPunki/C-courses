@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 //-----------------------------------
 // struct
@@ -64,19 +65,19 @@ student Enter_1_Student(int n) {
     printf("Surname : ");
     scanf("%s", &s.surname);
     do {
-        printf("Note 1 :", s.n1);
+        printf("Grade 1 (/20):", s.n1);
         scanf("%f", &s.n1);
     } while (0 > s.n1 || s.n1 > 20);
     do {
-        printf("Note 2 :", s.n2);
+        printf("Grade 2 (/20):", s.n2);
         scanf("%f", &s.n2);
     } while (0 > s.n2 || s.n2 > 20);
     do {
-        printf("Note 3 :", s.n3);
+        printf("Grade 3 (/20):", s.n3);
         scanf("%f", &s.n3);
     } while (0 > s.n3 || s.n3 > 20);
     do{
-        printf("Enter date (DD/MM/YYYY format): ");
+        printf("Enter birthday (DD/MM/YYYY format): ");
         scanf("%d/%d/%d",&s.day,&s.month,&s.year);
     }while (vdate(s.day,s.month,s.year)!=1);
     s.m = (s.n1 + s.n2 + s.n3) / 3;
@@ -91,53 +92,83 @@ void show_1_student(student s, int n) {
     printf("\n--------------\nStudent %d\n--------------", n);
     printf("\nName: %s", s.name);
     printf("\nSurname: %s", s.surname);
-    printf("\nGrade 1: %.2f", s.n1);
-    printf("\nGrade 2: %.2f", s.n2);
-    printf("\nGrade 3: %.2f", s.n3);
-    printf("\nAverage: %.2f", s.m);
-    printf("\nBirthday: %d/%d/%d", s.day, s.month, s.year);
+    printf("\nGrade 1: %.2f/20", s.n1);
+    printf("\nGrade 2: %.2f/20", s.n2);
+    printf("\nGrade 3: %.2f/20", s.n3);
+    printf("\nAverage: %.2f/20", s.m);
+    if(s.day<10 && s.month<10) {
+        printf("\nBirthday: 0%d/0%d/%d", s.day, s.month, s.year);
+    }
+    if(s.day<10 && s.month>=10){
+        printf("\nBirthday: 0%d/%d/%d", s.day, s.month, s.year);
+    }
+    if(s.day>=10 && s.month<10){
+        printf("\nBirthday: %d/0%d/%d", s.day, s.month, s.year);
+    }
+    if(s.day>=10 && s.month>=10){
+        printf("\nBirthday: %d/%d/%d", s.day, s.month, s.year);
+    }
 }
 //-----------------------------------
 void comparename(student *s,char * n,int N){
+    int indices[N];
+    int count = 0;
     int result =1;
     for (int i = 0; i < N; ++i) {
         result = strcmp((s + i)->name, n);
         if(result ==0){
-            show_1_student(*(s+i),N);
-            break;
+            indices[count] = i;
+            count++;
+        }
+        if (count == 0){
+            printf("\nNo students have this name in the system");}
+        else {
+            printf("\n%d students have the same name:\n", count);
+            for (int i = 0; i < count; i++) {
+                show_1_student(*(s + indices[i]), (indices[i] + 1));
+            }
         }
     }
 }
 //-----------------------------------
 void comparelastname(student *s,char *n,int N){
+    int indices[N];
+    int count = 0;
     int result =1;
     for (int i = 0; i < N; ++i) {
         result = strcmp((s + i)->surname, n);
         if(result ==0){
-            show_1_student(*(s+i),N);
-            break;
+            indices[count] = i;
+            count++;
+        }
+        if (count == 0){
+            printf("\nNo students have this last name in the system");}
+        else {
+            printf("\n%d students have the same last name:\n", count);
+            for (int i = 0; i < count; i++) {
+                show_1_student(*(s + indices[i]), (indices[i] + 1));
+            }
         }
     }
 }
 //-----------------------------------
-void comparebirth(student *s,int dd,int mm,int yy,int N){
-    int result =1;
-    int n[3]={dd,mm,yy};
+void comparebirth(student *s, int dd, int mm, int yy, int N) {
+    int indices[N];
+    int count = 0;
+    int n[3] = {dd, mm, yy};
     for (int i = 0; i < N; ++i) {
-        if((s + i)->year == n[2]){
-            if((s+i)->month == n[1]) {
-                if ((s + i)->day == n[0]) {
-                    show_1_student(*(s + i), (i+1));
-                    break;
-                }
-                else
-                    printf("\nno students have this date of birth in the system");
-            }
-            else
-                printf("\nno students have this date of birth in the system");
+        if ((s + i)->year == n[2] && (s + i)->month == n[1] && (s + i)->day == n[0]) {
+            indices[count] = i;
+            count++;
         }
-        else
-            printf("\nno students have this date of birth in the system");
+    }
+    if (count == 0) {
+        printf("\nNo students have this date of birth in the system\n");
+    } else {
+        printf("\n%d students have the same date of birth:\n", count);
+        for (int i = 0; i < count; i++) {
+            show_1_student(*(s + indices[i]), (indices[i] + 1));
+        }
     }
 }
 //-----------------------------------
@@ -157,20 +188,20 @@ void search(student *s,int N){
     } while (choiceSearch<0 || choiceSearch>3);
     switch (choiceSearch) {
         case 1:{
-            printf("\nPlease enter the student's name");
+            printf("\nPlease enter the student's name :");
             scanf("%s",&sn);
             comparename(s,&sn,N);
             break;
         }
         case 2:{
-            printf("\nPlease enter the student's last name");
+            printf("\nPlease enter the student's last name :");
             scanf("%s",&sl);
             comparelastname(s,&sl,N);
             break;
         }
         case 3:{
             do{
-                printf("\nPlease enter the student's birthday");
+                printf("\nPlease enter the student's birthday (DD/MM/YYYY format):");
                 scanf("%d/%d/%d",&dd,&mm,&yy);
             }while(vdate(dd,mm,yy)!=1);
             comparebirth(s,dd,mm,yy,N);
@@ -225,14 +256,20 @@ void modify(student *s, int n) {
         scanf("%s", s[i].name);
         printf("Surname: ");
         scanf("%s", s[i].surname);
-        printf("Grade 1: ");
-        scanf("%d", &s[i].n1);
-        printf("Grade 2: ");
-        scanf("%d", &s[i].n2);
-        printf("Grade 3: ");
-        scanf("%d", &s[i].n3);
         do{
-            printf("\nBirthday:");
+            printf("Grade 1 (/20): ");
+            scanf("%f", &s[i].n1);
+        }while (0 > s[i].n1 || s[i].n1 > 20);
+        do{
+            printf("Grade 2 (/20): ");
+            scanf("%f", &s[i].n2);
+        }while (0 > s[i].n2 || s[i].n2 > 20);
+        do{
+            printf("Grade 3 (/20): ");
+            scanf("%f", &s[i].n3);
+        }while (0 > s[i].n3 || s[i].n3 > 20);
+        do{
+            printf("\nBirthday (DD/MM/YYYY format):");
             scanf("%d/%d/%d",&s[i].day,&s[i].month,&s[i].year);
         }while(vdate(s[i].day,s[i].month,s[i].year)!=1);
         printf("New data for %s %s updated.\n", s[i].name, s[i].surname);
@@ -245,7 +282,7 @@ void modify(student *s, int n) {
 int numberstudent() {
     int n;
     do {
-        printf("\nEnter the number of student:  ");
+        printf("\nHow many students do you want to enter ? :  ");
         scanf("%d", &n);
     } while (n < 0);
 }
@@ -293,6 +330,11 @@ void exo4() {
             printf("\n What is your choice ? : ");
             printf("\n------------------------\n");
             scanf("%d", &g);
+            if (scanf("%c", &sn) != 1 || !isdigit(sn)) {
+                fflush(stdin);
+                continue;
+            }
+            g = sn - '0';
         } while (g <= 0 || g >6);
 
         if (g == 1) {
