@@ -314,34 +314,41 @@ void show_n_student(student *s, int n) {
 //-----------------------------------
 //----------BONUS CSV PART-----------
 //-----------------------------------
-void entercsv(student *s, int N){
+void SaveToCSV(student *s, int N, int LoadedCSV){
     FILE *file;
     char filename[50]="StudentData.csv";
-    file = fopen(filename, "a");
+    if (LoadedCSV==1) {
+        printf("Updating file %s", filename);
+        file = fopen(filename, "w");
+    }
+    else {
+        printf("Adding to file %s", filename);
+        file = fopen(filename, "a");
+    }
+
     if(file==NULL){
         printf("Error opening student file");
         return;
     }
     for (int i = 0; i < N; ++i) {
-        fprintf(file, "%s,%s,%f,%f,%f,%f,%d,%d,%d", (s+i)->name, (s+i)->surname, (s+i)->n1, (s+i)->n2, (s+i)->n3, (s+i)->m,
+        fprintf(file, "%s,%s,%f,%f,%f,%f,%d,%d,%d\n", (s+i)->name, (s+i)->surname, (s+i)->n1, (s+i)->n2, (s+i)->n3, (s+i)->m,
                 (s+i)->day, (s+i)->month, (s+i)->year);
     }
     printf("\nNew data entered into student file");
     fclose(file);
 }
 //-----------------------------------
-void showcsv(student *s) {
+int readcsv(student *s) {
     FILE *file;
     char filename[50] = "StudentData.csv";
     int count = 0;
     file = fopen(filename, "r");
     if (file == NULL) {
         printf("Error opening student file");
-        return;
+        return 666;
     }
     char line[1024];
     while (fgets(line, sizeof(line), file) != NULL) {
-
         char *token;
         token = strtok(line, ",");
         strncpy(s[count].name, token, sizeof(s[count].name) - 1);
@@ -361,19 +368,20 @@ void showcsv(student *s) {
         sscanf(token, "%d", &s[count].month);
         token = strtok(NULL, ",");
         sscanf(token, "%d", &s[count].year);
-        printf("Pouet");
 
         count++;
     }
     fclose(file);
     show_n_student(s, count);
+    return count;
 }
 //-----------------------------------
 //-----------MAIN PROGRAM------------
 //-----------------------------------
 void exo4() {
     student *s;
-    int n, g, N = 0;
+    int n, g, N= 0;
+    int LoadedCSV = 0;
     char sn,sl,sd;
     do {
         do {
@@ -385,8 +393,8 @@ void exo4() {
             printf("\n 3 - Search Student");
             printf("\n 4 - Erase Student");
             printf("\n 5 - Modify Student");
-            printf("\n 6 - Save data in file ");
-            printf("\n 7 - Show saved data ");
+            printf("\n 6 - Save data to CSV file ");
+            printf("\n 7 - Load data from CSV file ");
             printf("\n 8 - END ");
             printf("\n------------------------");
             printf("\n What is your choice ? : ");
@@ -435,13 +443,14 @@ void exo4() {
             system("pause");
         }
         if (g == 6){
-            entercsv(s,N);
+            SaveToCSV(s,N,LoadedCSV);
             printf("\n");
             system("pause");
         }
         if (g == 7){
             s = (student *)malloc(n * sizeof(student));
-            showcsv(s);
+            N = readcsv(s);
+            LoadedCSV=1;
             printf("\n");
             system("pause");
         }
