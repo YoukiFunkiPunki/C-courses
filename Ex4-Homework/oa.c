@@ -317,7 +317,7 @@ void show_n_student(student *s, int n) {
 void entercsv(student *s, int N){
     FILE *file;
     char filename[50]="StudentData.csv";
-    file = fopen(filename, "w");
+    file = fopen(filename, "a");
     if(file==NULL){
         printf("Error opening student file");
         return;
@@ -330,21 +330,43 @@ void entercsv(student *s, int N){
     fclose(file);
 }
 //-----------------------------------
-void showcsv(student *s, int N){
+void showcsv(student *s) {
     FILE *file;
-    char filename[50]="StudentData.csv";
-    int count=0;
+    char filename[50] = "StudentData.csv";
+    int count = 0;
     file = fopen(filename, "r");
-    if(file==NULL){
+    if (file == NULL) {
         printf("Error opening student file");
         return;
     }
-    for (int i = 0; i < N; ++i) {
-        fscanf(file, "%s,%s,%f,%f,%f,%f,%d,%d,%d", &s[i].name, &s[i].surname, &s[i].n1, &s[i].n2, &s[i].n3, &s[i].m,
-               &s[i].day, &s[i].month, &s[i].year);
+    char line[1024];
+    while (fgets(line, sizeof(line), file) != NULL) {
+
+        char *token;
+        token = strtok(line, ",");
+        strncpy(s[count].name, token, sizeof(s[count].name) - 1);
+        token = strtok(NULL, ",");
+        strncpy(s[count].surname, token, sizeof(s[count].surname) - 1);
+        token = strtok(NULL, ",");
+        sscanf(token, "%f", &s[count].n1);
+        token = strtok(NULL, ",");
+        sscanf(token, "%f", &s[count].n2);
+        token = strtok(NULL, ",");
+        sscanf(token, "%f", &s[count].n3);
+        token = strtok(NULL, ",");
+        sscanf(token, "%f", &s[count].m);
+        token = strtok(NULL, ",");
+        sscanf(token, "%d", &s[count].day);
+        token = strtok(NULL, ",");
+        sscanf(token, "%d", &s[count].month);
+        token = strtok(NULL, ",");
+        sscanf(token, "%d", &s[count].year);
+        printf("Pouet");
+
+        count++;
     }
-    show_n_student(s,N);
     fclose(file);
+    show_n_student(s, count);
 }
 //-----------------------------------
 //-----------MAIN PROGRAM------------
@@ -370,15 +392,12 @@ void exo4() {
             printf("\n What is your choice ? : ");
             printf("\n------------------------\n");
             scanf("%d", &g);
-            if (scanf("%c", &sn) != 15 || !isdigit(sn)) {
+            if (scanf("%c", &sn) != 1 || !isdigit(sn)) {
                 fflush(stdin);
-                printf("Please enter a valid choice");
-                printf("\n");
-                system("pause");
                 continue;
             }
             g = sn - '0';
-        } while (g <= 0 || g >6);
+        } while (g <= 0 || g >8);
 
         if (g == 1) {
             if (N == 0) {
@@ -421,7 +440,8 @@ void exo4() {
             system("pause");
         }
         if (g == 7){
-            showcsv(s,N);
+            s = (student *)malloc(n * sizeof(student));
+            showcsv(s);
             printf("\n");
             system("pause");
         }
